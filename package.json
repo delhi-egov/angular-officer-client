@@ -1,0 +1,19 @@
+{
+  "name": "angular-officer-client",
+  "version": "1.0.0",
+  "description": "This is a client which can be used to develop client side applications in angular. It takes care of communication with the backend and provides essential services which take care of user navigation based on the config provided.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/delhi-egov/angular-officer-client.git"
+  },
+  "author": "Vaibhav Sinha",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/delhi-egov/angular-officer-client/issues"
+  },
+  "homepage": "https://github.com/delhi-egov/angular-officer-client#readme"
+}
