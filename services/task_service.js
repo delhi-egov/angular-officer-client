@@ -2,17 +2,14 @@ module.exports = function($state, backendClient, authInfo, taskInfo) {
     return {
         selectTask: function(controller, task) {
             taskInfo.task = task;
-            var parts = taskInfo.task.processInstance.split('/');
-            var processInstanceId = parts[parts.length - 1];
-            taskInfo.task.processInstanceId = processInstanceId;
         },
         getTasks: function(controller) {
             var promise = new Promise(function(resolve, reject) {
                 controller.tasksFetchError = undefined;
                 backendClient.getTasksForUser(authInfo.user)
                 .then(function(response) {
-                    controller.userTasks = response.data;
-                    resolve(response.data);
+                    controller.userTasks = response.data.data;
+                    resolve(response.data.data);
                 }, function(response) {
                     controller.tasksFetchError = response.message;
                     reject(response.message);
@@ -25,8 +22,8 @@ module.exports = function($state, backendClient, authInfo, taskInfo) {
                 controller.tasksForApplicationFetchError = undefined;
                 backendClient.getTasksForUser(authInfo.user, applicationId)
                 .then(function(response) {
-                    controller.userTasks = response.data;
-                    resolve(response.data);
+                    controller.userTasks = response.data.data;
+                    resolve(response.data.data);
                 }, function(response) {
                     controller.tasksForApplicationFetchError = response.message;
                     reject(response.message);
@@ -39,8 +36,8 @@ module.exports = function($state, backendClient, authInfo, taskInfo) {
                 controller.queuedFetchError = undefined;
                 backendClient.getQueuedTasksForUser(authInfo.user)
                 .then(function(response) {
-                    controller.queuedTasks = response.data;
-                    resolve(response.data);
+                    controller.queuedTasks = response.data.data;
+                    resolve(response.data.data);
                 }, function(response) {
                     controller.queuedFetchError = response.message;
                     reject(response.message);
@@ -53,8 +50,8 @@ module.exports = function($state, backendClient, authInfo, taskInfo) {
                 controller.queuedForApplicationFetchError = undefined;
                 backendClient.getQueuedTasksForUser(authInfo.user, applicationId)
                 .then(function(response) {
-                    controller.queuedTasks = response.data;
-                    resolve(response.data);
+                    controller.queuedTasks = response.data.data;
+                    resolve(response.data.data);
                 }, function(response) {
                     controller.queuedForApplicationFetchError = response.message;
                     reject(response.message);
@@ -81,7 +78,7 @@ module.exports = function($state, backendClient, authInfo, taskInfo) {
                 controller.variablesFetchError = undefined;
                 backendClient.getVariablesForTask(taskInfo.task.id)
                 .then(function(response) {
-                    controller.variables = response.data;
+                    controller.variables = this.convertVariablesToMap(response.data);
                     taskInfo.task.variables = response.data;
                     resolve(response.data);
                 }, function(response) {
@@ -200,7 +197,14 @@ module.exports = function($state, backendClient, authInfo, taskInfo) {
             return promise;
         },
         initTaskController: function(controller) {
-            controller.variables = taskInfo.task.variables;
+            controller.variables = this.convertVariablesToMap(taskInfo.task.variables);
+        },
+        convertVariablesToMap: function(variables) {
+            var mappedVariables = {};
+            variables.forEach(function(item, index, array) {
+                mappedVariables[item.name] = item.value;
+            });
+            return mappedVariables;
         }
     };
 };
