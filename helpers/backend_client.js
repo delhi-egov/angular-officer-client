@@ -50,6 +50,9 @@ module.exports = function($http, Upload) {
         getCommentsForTask: function(taskId) {
             return $http.get('/api/runtime/tasks/' + taskId + '/comments');
         },
+        getVariablesForTask: function(taskId) {
+            return $http.get('/api/runtime/tasks/' + taskId + '/variables');
+        },
         addCommentToTask: function(taskId, comment) {
             return $http.post('/api/runtime/tasks/' + taskId + '/comments', {
                 message : comment,
@@ -58,6 +61,25 @@ module.exports = function($http, Upload) {
         },
         addVariablesToProcessInstance: function(processInstanceId, variables) {
             return $http.put('/api/runtime/process-instances/' + 'processInstanceId' + '/variables', variables);
+        },
+        attachForm: function(processInstanceId, type, data) {
+            return $http.post('/api/data/attachForm', {
+                processInstanceId: processInstanceId,
+                type: type,
+                data: data
+            });
+        },
+        attachDocument: function(processInstanceId, type, file) {
+            return Upload.upload({
+                url: '/api/data/attachDocument',
+                data: {
+                    file: file,
+                    form: JSON.stringify({
+                        processInstanceId: processInstanceId,
+                        type: type
+                    })
+                }
+            });
         },
         completeTask: function(taskId, variables) {
             return $http.post('/api/runtime/tasks/' + taskId, {

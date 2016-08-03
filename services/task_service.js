@@ -1,4 +1,4 @@
-module.exports = function($state, backendClient, authInfo, taskInfo, appConfig) {
+module.exports = function($state, backendClient, authInfo, taskInfo) {
     return {
         selectTask: function(controller, task) {
             taskInfo.task = task;
@@ -9,13 +9,13 @@ module.exports = function($state, backendClient, authInfo, taskInfo, appConfig) 
         },
         getTasks: function(controller) {
             var promise = new Promise(function(resolve, reject) {
-                controller.fetchError = undefined;
+                controller.tasksFetchError = undefined;
                 backendClient.getTasksForUser(authInfo.user)
                 .then(function(response) {
                     controller.userTasks = response.data;
                     resolve(response.data);
                 }, function(response) {
-                    controller.fetchError = response.message;
+                    controller.tasksFetchError = response.message;
                     reject(response.message);
                 });
             });
@@ -23,13 +23,13 @@ module.exports = function($state, backendClient, authInfo, taskInfo, appConfig) 
         },
         getTasksForApplication: function(controller, applicationId) {
             var promise = new Promise(function(resolve, reject) {
-                controller.fetchError = undefined;
+                controller.tasksForApplicationFetchError = undefined;
                 backendClient.getTasksForUser(authInfo.user, applicationId)
                 .then(function(response) {
                     controller.userTasks = response.data;
                     resolve(response.data);
                 }, function(response) {
-                    controller.fetchError = response.message;
+                    controller.tasksForApplicationFetchError = response.message;
                     reject(response.message);
                 });
             });
@@ -37,13 +37,13 @@ module.exports = function($state, backendClient, authInfo, taskInfo, appConfig) 
         },
         getQueuedTasks: function(controller) {
             var promise = new Promise(function(resolve, reject) {
-                controller.fetchError = undefined;
+                controller.queuedFetchError = undefined;
                 backendClient.getQueuedTasksForUser(authInfo.user)
                 .then(function(response) {
                     controller.queuedTasks = response.data;
                     resolve(response.data);
                 }, function(response) {
-                    controller.fetchError = response.message;
+                    controller.queuedFetchError = response.message;
                     reject(response.message);
                 });
             });
@@ -51,13 +51,13 @@ module.exports = function($state, backendClient, authInfo, taskInfo, appConfig) 
         },
         getQueuedTasksForApplication: function(controller, applicationId) {
             var promise = new Promise(function(resolve, reject) {
-                controller.fetchError = undefined;
+                controller.queuedForApplicationFetchError = undefined;
                 backendClient.getQueuedTasksForUser(authInfo.user, applicationId)
                 .then(function(response) {
                     controller.queuedTasks = response.data;
                     resolve(response.data);
                 }, function(response) {
-                    controller.fetchError = response.message;
+                    controller.queuedForApplicationFetchError = response.message;
                     reject(response.message);
                 });
             });
@@ -65,13 +65,28 @@ module.exports = function($state, backendClient, authInfo, taskInfo, appConfig) 
         },
         getComments: function(controller) {
             var promise = new Promise(function(resolve, reject) {
-                controller.fetchError = undefined;
+                controller.commentsFetchError = undefined;
                 backendClient.getCommentsForTask(taskInfo.task.id)
                 .then(function(response) {
                     controller.comments = response.data;
                     resolve(response.data);
                 }, function(response) {
-                    controller.fetchError = response.message;
+                    controller.commentsFetchError = response.message;
+                    reject(response.message);
+                });
+            });
+            return promise;
+        },
+        getVariables: function(controller) {
+            var promise = new Promise(function(resolve, reject) {
+                controller.variablesFetchError = undefined;
+                backendClient.getVariablesForTask(taskInfo.task.id)
+                .then(function(response) {
+                    controller.variables = response.data;
+                    taskInfo.task.variables = response.data;
+                    resolve(response.data);
+                }, function(response) {
+                    controller.variablesFetchError = response.message;
                     reject(response.message);
                 });
             });
@@ -79,7 +94,7 @@ module.exports = function($state, backendClient, authInfo, taskInfo, appConfig) 
         },
         addComment: function(controller, comment) {
             var promise = new Promise(function(resolve, reject) {
-                controller.postError = undefined;
+                controller.commentPostError = undefined;
                 backendClient.addCommentToTask(taskInfo.task.id, comment)
                 .then(function(response) {
                     if(controller.comments === undefined) {
@@ -88,27 +103,39 @@ module.exports = function($state, backendClient, authInfo, taskInfo, appConfig) 
                     controller.comments.push(response.data);
                     resolve(response.data);
                 }, function(response) {
-                    controller.postError = response.message;
+                    controller.commentPostError = response.message;
                     reject(response.message);
                 });
             });
             return promise;
         },
-        addData: function(controller, name, data) {
+        attachForm: function(controller, type, data) {
             var promise = new Promise(function(resolve, reject) {
-                controller.postError = undefined;
-                var variables = [
-                    {
-                        name: name,
-                        value: data
-                    }
-                ];
-                backendClient.addVariablesToProcessInstance(taskInfo.task.processInstanceId, variables)
+                controller.formPostError = undefined;
+                backendClient.attachForm(taskInfo.task.processInstanceId, type, data)
                 .then(function(response) {
-                    controller.variables.push(response.data[0]);
-                    resolve(response.data);
+                    this.getVariables(controller)
+                    .then(function(response) {
+                        resolve(response.data);
+                    });
                 }, function(response) {
-                    controller.postError = response.message;
+                    controller.formPostError = response.message;
+                    reject(response.message);
+                });
+            });
+            return promise;
+        },
+        attachDocument: function(controller, type, file) {
+            var promise = new Promise(function(resolve, reject) {
+                controller.documentPostError = undefined;
+                backendClient.attachDocument(taskInfo.task.processInstanceId, type, file)
+                .then(function(response) {
+                    this.getVariables(controller)
+                    .then(function(response) {
+                        resolve(response.data);
+                    });
+                }, function(response) {
+                    controller.documentPostError = response.message;
                     reject(response.message);
                 });
             });
@@ -116,13 +143,12 @@ module.exports = function($state, backendClient, authInfo, taskInfo, appConfig) 
         },
         completeTask: function(controller) {
             var promise = new Promise(function(resolve, reject) {
-                controller.completeMessage = undefined;
+                controller.completeError = undefined;
                 backendClient.completeTask(taskInfo.task.id, [])
                 .then(function(response) {
-                    controller.completeMessage = 'Marked task completed successfully';
                     resolve(response.data);
                 }, function(response) {
-                    controller.completeMessage = response.message;
+                    controller.completeError = response.message;
                     reject(response.message);
                 });
             });
