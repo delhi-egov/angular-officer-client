@@ -5,7 +5,6 @@ module.exports = function($state, backendClient, authInfo, taskInfo) {
             var parts = taskInfo.task.processInstance.split('/');
             var processInstanceId = parts[parts.length - 1];
             taskInfo.task.processInstanceId = processInstanceId;
-            controller.variables = task.variables;
         },
         getTasks: function(controller) {
             var promise = new Promise(function(resolve, reject) {
@@ -199,6 +198,9 @@ module.exports = function($state, backendClient, authInfo, taskInfo) {
                 });
             });
             return promise;
+        },
+        initTaskController: function(controller) {
+            controller.variables = taskInfo.task.variables;
         }
     };
 };
