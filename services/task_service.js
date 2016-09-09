@@ -197,7 +197,7 @@ module.exports = function($state, backendClient, authInfo, taskInfo) {
             return promise;
         },
         initTaskController: function(controller) {
-            controller.variables = this.convertVariablesToMap(taskInfo.task.variables);
+            //controller.variables = this.convertVariablesToMap(taskInfo.task.variables);
         },
         convertVariablesToMap: function(variables) {
             var mappedVariables = {};
