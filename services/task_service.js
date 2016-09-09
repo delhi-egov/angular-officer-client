@@ -154,10 +154,8 @@ module.exports = function($state, backendClient, authInfo, taskInfo) {
             var promise = new Promise(function(resolve, reject) {
                 var that = this;
                 controller.claimError = undefined;
-                backendClient.claimTask(taskInfo.task.id, authInfo.user.id)
+                backendClient.claimTask(taskInfo.task.id, authInfo.user.username)
                 .then(function(response) {
-                    that.getTasks(controller);
-                    that.getQueuedTasks(controller);
                     resolve(response.data);
                 }, function(response) {
                     controller.claimError = response.message;
