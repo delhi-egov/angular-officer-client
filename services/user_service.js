@@ -34,8 +34,16 @@ module.exports = function($state, backendClient, authInfo) {
             var promise = new Promise(function(resolve, reject) {
                 backendClient.me()
                 .then(function(response) {
-                    authInfo.user = response.data;
-                    resolve(response.data);
+		    authInfo.user = response.data;
+		    resolve(response.data);
+                    //var user = response.data;
+                    //backendClient.getGroups().then(function(groups) {
+                    //    user.groups = groups;
+                    //    authInfo.user = user;
+                    //    resolve(response.data);
+                    //}, function(response) {
+                    //    reject(response.message);
+                    //});
                 },function(response) {
                     reject(response.message);
                 });

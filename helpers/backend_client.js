@@ -124,6 +124,9 @@ module.exports = function($http, Upload) {
                 url = url + query;
             }
             return $http.get(url);
+        },
+        getGroups: function(member) {
+            return $http.get('/api/identity/groups?member=' + member);
         }
     };
 };

@@ -74,12 +74,13 @@ module.exports = function($state, backendClient, authInfo, taskInfo) {
             return promise;
         },
         getVariables: function(controller) {
+	    var that = this;
             var promise = new Promise(function(resolve, reject) {
                 controller.variablesFetchError = undefined;
                 backendClient.getVariablesForTask(taskInfo.task.id)
                 .then(function(response) {
-                    controller.variables = this.convertVariablesToMap(response.data);
-                    taskInfo.task.variables = response.data;
+                    controller.variables = that.convertVariablesToMap(response.data);
+                    taskInfo.task.variables = controller.variables;
                     resolve(response.data);
                 }, function(response) {
                     controller.variablesFetchError = response.message;
@@ -106,11 +107,12 @@ module.exports = function($state, backendClient, authInfo, taskInfo) {
             return promise;
         },
         attachForm: function(controller, type, data) {
+	    var that = this;
             var promise = new Promise(function(resolve, reject) {
                 controller.formPostError = undefined;
                 backendClient.attachForm(taskInfo.task.processInstanceId, type, data)
                 .then(function(response) {
-                    this.getVariables(controller)
+                    that.getVariables(controller)
                     .then(function(response) {
                         resolve(response.data);
                     });
@@ -122,11 +124,12 @@ module.exports = function($state, backendClient, authInfo, taskInfo) {
             return promise;
         },
         attachDocument: function(controller, type, file) {
+	    var that = this;
             var promise = new Promise(function(resolve, reject) {
                 controller.documentPostError = undefined;
                 backendClient.attachDocument(taskInfo.task.processInstanceId, type, file)
                 .then(function(response) {
-                    this.getVariables(controller)
+                    that.getVariables(controller)
                     .then(function(response) {
                         resolve(response.data);
                     });
@@ -200,7 +203,12 @@ module.exports = function($state, backendClient, authInfo, taskInfo) {
         convertVariablesToMap: function(variables) {
             var mappedVariables = {};
             variables.forEach(function(item, index, array) {
-                mappedVariables[item.name] = item.value;
+		if(item.type === 'map') {
+		    mappedVariables[item.name] = JSON.parse(item.value);
+		}
+		else {
+                    mappedVariables[item.name] = item.value;
+		}
             });
             return mappedVariables;
         }
