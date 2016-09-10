@@ -9,9 +9,9 @@ module.exports = function($state, backendClient, authInfo) {
             backendClient.login(credentials.username, credentials.password)
             .then(function(response) {
                 authInfo.user = response.data;
-                $state.go('home');
+                $state.go('dashboard');
             },function(response) {
-                controller.loginError = response.message;
+                controller.loginError = "Incorrect credentials";
             });
         },
         //Does logout of user
@@ -23,7 +23,7 @@ module.exports = function($state, backendClient, authInfo) {
             backendClient.logout()
             .then(function(response) {
                 authInfo.user = {};
-                $state.go('login');
+                $state.go('user.login');
             },function(response) {
                 controller.logoutError = response.message;
             });
