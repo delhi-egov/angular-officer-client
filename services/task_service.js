@@ -141,10 +141,12 @@ module.exports = function($state, backendClient, authInfo, taskInfo) {
             return promise;
         },
         completeTask: function(controller) {
+            var that = this;
             var promise = new Promise(function(resolve, reject) {
                 controller.completeError = undefined;
                 backendClient.completeTask(taskInfo.task.id, [])
                 .then(function(response) {
+                    taskInfo.task.complete = true;
                     resolve(response.data);
                 }, function(response) {
                     controller.completeError = response.message;
@@ -159,6 +161,7 @@ module.exports = function($state, backendClient, authInfo, taskInfo) {
                 controller.claimError = undefined;
                 backendClient.claimTask(taskInfo.task.id, authInfo.user.username)
                 .then(function(response) {
+                    taskInfo.task.assignee = authInfo.user.username;
                     resolve(response.data);
                 }, function(response) {
                     controller.claimError = response.message;
@@ -173,8 +176,7 @@ module.exports = function($state, backendClient, authInfo, taskInfo) {
                 controller.assignError = undefined;
                 backendClient.claimTask(taskInfo.task.id, user.id)
                 .then(function(response) {
-                    that.getTasks(controller);
-                    that.getQueuedTasks(controller);
+                    taskInfo.task.assignee = user.id;
                     resolve(response.data);
                 }, function(response) {
                     controller.assignError = response.message;
