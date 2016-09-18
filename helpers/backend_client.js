@@ -127,6 +127,9 @@ module.exports = function($http, Upload) {
         },
         getGroups: function(member) {
             return $http.get('/api/identity/groups?member=' + member);
+        },
+        getHistoricalApplication: function(applicationId) {
+            return $http.get('/api/history/historic-process-instances?businessKey=' + applicationId);
         }
     };
 };
