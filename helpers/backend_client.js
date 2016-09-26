@@ -60,7 +60,7 @@ module.exports = function($http, Upload) {
             });
         },
         addVariablesToProcessInstance: function(processInstanceId, variables) {
-            return $http.put('/api/runtime/process-instances/' + 'processInstanceId' + '/variables', variables);
+            return $http.put('/api/runtime/process-instances/' + processInstanceId + '/variables', variables);
         },
         attachForm: function(processInstanceId, type, data) {
             return $http.post('/api/data/attachForm', {

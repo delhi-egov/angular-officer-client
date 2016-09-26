@@ -213,6 +213,9 @@ module.exports = function($state, backendClient, authInfo, taskInfo) {
 		}
             });
             return mappedVariables;
+        },
+        addVariables: function(controller, variables) {
+            backendClient.addVariablesToProcessInstance(taskInfo.task.processInstanceId, variables);
         }
     };
 };
